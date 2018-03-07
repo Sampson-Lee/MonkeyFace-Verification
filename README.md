@@ -65,6 +65,39 @@
 ## 实验
 猴脸图片是比较标准的图片，而且猴脸特征明显，得到的准确率能轻易地高于无限制人脸识别和行人重识别。
 
+数据处理：
+```
+data_transforms = {
+    'train': transforms.Compose([
+        transforms.CenterCrop(200),
+        transforms.Resize(230),
+        transforms.RandomGrayscale(p=0.1),
+        transforms.RandomHorizontalFlip(),
+        transforms.ColorJitter(),
+        transforms.RandomCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ]),
+    'val': transforms.Compose([
+        transforms.CenterCrop(200),
+        transforms.Resize(230),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
+}
+```
+
+训练策略：
+```
+ optimizer = optim.SGD([
+            {'params': fea_paras, 'lr': args.fea_lr},
+            {'params': cls_paras, 'lr': args.cls_lr}
+            ], momentum=0.9, weight_decay=0.0005)
+    milestones=[int(args.epochs*(0.5**multi)) for multi in reversed(range(3))]
+    exp_lr_scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
+```
+
 网络结构：
 
 IDE：直接微调 resnet18
